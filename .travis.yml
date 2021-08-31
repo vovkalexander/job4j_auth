@@ -1,0 +1,20 @@
+# используем язык java. Travis CI поддерживает другие языки тоже.
+codecov: true
+language: java
+jdk:
+  - openjdk11
+
+# используем режим обычного пользователя для сборки проекта.
+sudo: false
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+# Отправлять уведомление на почту vovk.ag747@gmail.com если сборка упала
+notifications:
+  email:
+    recipients:
+      -vovk.ag747@gmail.com
+    on_success: never # default: change
+    on_failure: always # default: always
+  env:
+    global:
+      - CODECOV_TOKEN="b1e8b00b-9961-412b-b5ad-e980a8fa3569"
