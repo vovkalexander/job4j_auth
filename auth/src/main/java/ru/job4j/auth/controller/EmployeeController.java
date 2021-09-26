@@ -10,13 +10,13 @@ import org.springframework.web.client.RestTemplate;
 import ru.job4j.auth.domain.Employee;
 import ru.job4j.auth.domain.Person;
 import ru.job4j.auth.repository.EmployeeRepository;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 
 @RestController
 @RequestMapping("/employee")
@@ -36,26 +36,20 @@ public class EmployeeController {
     }
 
     @GetMapping("/")
-    public List<Employee> findAll() {
+    public Collection<Employee> findAll() {
 
        List<Person> persons = rest.exchange(
                 API,
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<Person>>() { }
         ).getBody();
 
-        List<Employee> employees = StreamSupport.stream(this.employeeRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
+       Map<Integer, Employee> employeeMap = StreamSupport.stream(this.employeeRepository.findAll().spliterator(), false)
+              .collect(Collectors.toMap(Employee::getId, Function.identity()));
 
-        System.out.println(employees);
+        persons.stream().filter(person -> employeeMap.containsKey(person.getEmployeeId()))
+              .forEach(person -> employeeMap.get(person.getEmployeeId()).getPerson().add(person));
 
-        for (Employee employee : employees) {
-            for (Person person : persons) {
-                if (employee.getId() == person.getEmployeeId()) {
-                    employee.getPerson().add(person);
-                }
-            }
-        }
-        return employees;
+        return  employeeMap.values();
     }
 
     @PostMapping("/")
