@@ -17,21 +17,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
-
-    @Autowired
-    private RestTemplate rest;
 
     private static final String API = "http://localhost:8080/person/";
 
     private static final String API_ID = "http://localhost:8080/person/{id}";
 
+    @Autowired
+    private RestTemplate rest;
+
     private final EmployeeRepository employeeRepository;
 
-    public EmployeeController( final EmployeeRepository employeeRepository) {
+    public EmployeeController(final EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 
@@ -60,7 +59,6 @@ public class EmployeeController {
                 HttpStatus.CREATED
         );
     }
-
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {

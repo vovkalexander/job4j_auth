@@ -12,10 +12,7 @@
     <!-- Checks for Size Violations.                    -->
     <!-- See http://checkstyle.sf.net/config_sizes.html -->
     <module name="FileLength"/>
-    <module name = "LineLength">
-        <property name="fileExtensions" value="java"/>
-        <property name="max" value="100"/>
-    </module>
+
 
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
@@ -31,7 +28,6 @@
 CLASS_DEF, ENUM_DEF, INTERFACE_DEF, CTOR_DEF, INSTANCE_INIT, VARIABLE_DEF, METHOD_DEF"/>
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
             <property name="allowMultipleEmptyLines" value="false"/>
-            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
         </module>
         <module name="VisibilityModifier"/>
         <!-- Checks for Naming Conventions.                  -->

@@ -59,8 +59,10 @@ public class Person {
             return false;
         }
         Person person = (Person) o;
-        return id == person.id &&
-                Objects.equals(login, person.login) &&
+        return id == person.id
+                &&
+                Objects.equals(login, person.login)
+                &&
                 Objects.equals(password, person.password);
     }
 
