@@ -1,5 +1,7 @@
 package ru.job4j.auth.controller;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.domain.Person;
 import ru.job4j.auth.repository.PersonRepository;
@@ -9,12 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 @RestController
 @RequestMapping("/person")
+@AllArgsConstructor
 public class PersonController {
     private final PersonRepository persons;
-
-    public PersonController(final PersonRepository persons) {
-        this.persons = persons;
-    }
+    private final BCryptPasswordEncoder encoder;
 
     @GetMapping("/")
     public List<Person> findAll() {
@@ -32,15 +32,18 @@ public class PersonController {
         );
     }
 
-    @PostMapping("/")
+    @PostMapping("/sign-up")
     public ResponseEntity<Person> create(@RequestBody Person person) {
-        return new ResponseEntity<Person>(
+
+       person.setPassword(encoder.encode(person.getPassword()));
+
+       return new ResponseEntity<Person>(
                 this.persons.save(person),
                 HttpStatus.CREATED
         );
     }
 
-    @PutMapping("/")
+    @PutMapping("/update")
     public ResponseEntity<Void> update(@RequestBody Person person) {
         this.persons.save(person);
         return ResponseEntity.ok().build();
