@@ -53,6 +53,10 @@ public class EmployeeController {
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
+        if (person.getLogin() == null || person.getPassword() == null) {
+
+            throw new NullPointerException("Login and password mustn't be empty");
+        }
         Person rsl = rest.postForObject(API, person, Person.class);
         return new ResponseEntity<>(
                 rsl,
@@ -62,6 +66,10 @@ public class EmployeeController {
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
+        if (person.getLogin() == null || person.getPassword() == null) {
+
+            throw new NullPointerException("Login and password mustn't be empty");
+        }
         rest.put(API, person);
         return ResponseEntity.ok().build();
     }
