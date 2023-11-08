@@ -2,8 +2,10 @@ package ru.job4j.auth.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.MultiValueMapAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.auth.domain.Person;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -27,11 +30,14 @@ public class PersonController {
     private final ObjectMapper objectMapper;
 
     @GetMapping("/")
-    public List<Person> findAll() {
+    public ResponseEntity<List<Person>> findAll() {
 
-        return StreamSupport.stream(
-                this.persons.findAll().spliterator(), false
-        ).collect(Collectors.toList());
+        return  ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(StreamSupport.stream(
+                        this.persons.findAll().spliterator(), false
+                ).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
@@ -39,8 +45,9 @@ public class PersonController {
 
         return  new ResponseEntity<>(persons.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Person is not found. Please, check id"
-                )), HttpStatus.OK);
+                        HttpStatus.NOT_FOUND, "Person is not found. Please, check id")),
+                new MultiValueMapAdapter<>(Map.of("Job4jCustomHeader", List.of("findById"))),
+                HttpStatus.OK);
     }
 
     @PostMapping("/sign-up")
@@ -48,18 +55,23 @@ public class PersonController {
         validate(person);
         person.setPassword(encoder.encode(person.getPassword()));
 
-        return new ResponseEntity<>(
-                this.persons.save(person),
-                HttpStatus.CREATED
-        );
+        return  ResponseEntity
+                .status(HttpStatus.CREATED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(persons.save(person));
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> update(@RequestBody  Person person) {
+    public ResponseEntity<Person> update(@RequestBody  Person person) {
         validate(person);
-        this.persons.save(person);
+        person.setPassword(encoder.encode(person.getPassword()));
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity(
+                persons.save(person),
+                new MultiValueMapAdapter<>(Map.of("Job4jCustomHeader", List.of("update"))),
+                HttpStatus.OK
+        );
+
     }
 
     @DeleteMapping("/{id}")
@@ -67,7 +79,12 @@ public class PersonController {
         Person person = new Person();
         person.setId(id);
         this.persons.delete(person);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Job4jCustomHeader", "delete")
+                .build();
     }
 
     private void validate(Person person) {
