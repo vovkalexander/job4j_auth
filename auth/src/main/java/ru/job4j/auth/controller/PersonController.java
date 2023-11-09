@@ -9,6 +9,7 @@ import org.springframework.util.MultiValueMapAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.auth.domain.Person;
+import ru.job4j.auth.dto.PersonDTO;
 import ru.job4j.auth.repository.PersonRepository;
 import org.springframework.http.HttpStatus;
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +58,26 @@ public class PersonController {
 
         return  ResponseEntity
                 .status(HttpStatus.CREATED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(persons.save(person));
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<Person> updateLogin(@RequestBody PersonDTO personDto) {
+
+        if (personDto.getLogin() == null) {
+
+            throw new NullPointerException("Login mustn't be empty");
+        }
+
+        Person person = persons.findById(personDto.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Person is not found. Please, check id"));
+
+        person.setLogin(personDto.getLogin());
+
+        return   ResponseEntity
+                .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(persons.save(person));
     }

@@ -2,13 +2,12 @@ package ru.job4j.auth.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import ru.job4j.auth.domain.Employee;
 import ru.job4j.auth.domain.Person;
+import ru.job4j.auth.dto.PersonDTO;
 import ru.job4j.auth.repository.EmployeeRepository;
 import java.util.Collection;
 import java.util.List;
@@ -37,7 +36,7 @@ public class EmployeeController {
     @GetMapping("/")
     public Collection<Employee> findAll() {
 
-       List<Person> persons = rest.exchange(
+        List<Person> persons = rest.exchange(
                 API,
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<Person>>() { }
         ).getBody();
@@ -51,13 +50,28 @@ public class EmployeeController {
         return  employeeMap.values();
     }
 
+    @PatchMapping("/")
+    public ResponseEntity<Person> updateLogin(@RequestBody PersonDTO persondto) {
+
+        Person person = rest.patchForObject(API, persondto, Person.class);
+
+        return new ResponseEntity<>(
+                person,
+                HttpStatus.OK
+        );
+
+
+
+    }
+
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
         if (person.getLogin() == null || person.getPassword() == null) {
 
             throw new NullPointerException("Login and password mustn't be empty");
         }
-        Person rsl = rest.postForObject(API, person, Person.class);
+
+        Person rsl = rest.postForObject(API + "sign-up", person, Person.class);
         return new ResponseEntity<>(
                 rsl,
                 HttpStatus.CREATED
