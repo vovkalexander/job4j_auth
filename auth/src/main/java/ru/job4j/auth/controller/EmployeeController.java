@@ -3,12 +3,16 @@ package ru.job4j.auth.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import ru.job4j.auth.domain.Employee;
 import ru.job4j.auth.domain.Person;
 import ru.job4j.auth.dto.PersonDTO;
+import ru.job4j.auth.exception.Operation;
 import ru.job4j.auth.repository.EmployeeRepository;
+
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +55,7 @@ public class EmployeeController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<Person> updateLogin(@RequestBody PersonDTO persondto) {
+    public ResponseEntity<Person> updateLogin(@RequestBody @Valid PersonDTO persondto) {
 
         Person person = rest.patchForObject(API, persondto, Person.class);
 
@@ -60,12 +64,10 @@ public class EmployeeController {
                 HttpStatus.OK
         );
 
-
-
     }
 
     @PostMapping("/")
-    public ResponseEntity<Person> create(@RequestBody Person person) {
+    public ResponseEntity<Person> create(@RequestBody @Validated(Operation.OnCreate.class) Person person) {
         if (person.getLogin() == null || person.getPassword() == null) {
 
             throw new NullPointerException("Login and password mustn't be empty");
@@ -79,7 +81,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Person person) {
+    public ResponseEntity<Void> update(@RequestBody @Validated(Operation.OnUpdate.class) Person person) {
         if (person.getLogin() == null || person.getPassword() == null) {
 
             throw new NullPointerException("Login and password mustn't be empty");

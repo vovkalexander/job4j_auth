@@ -1,15 +1,29 @@
 package ru.job4j.auth.domain;
 import lombok.Data;
+import ru.job4j.auth.exception.Operation;
+
 import javax.persistence.*;
+
+import javax.validation.constraints.*;
 import java.util.Objects;
 
 @Entity
 @Data
 public class Person {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Null(groups = Operation.OnCreate.class)
+    @NotNull(message = "id must be not null", groups = Operation.OnUpdate.class)
+    private Integer id;
+
+    @NotBlank(message = "login must be not empty")
     private String login;
+
+    @NotBlank(message = "password must be not empty", groups = {Operation.OnCreate.class,
+            Operation.OnUpdate.class})
+    @Size(min = 6, message = "password length must be not 6", groups = {Operation.OnCreate.class,
+            Operation.OnUpdate.class})
     private String password;
 
     @Column(name = "employee_id")

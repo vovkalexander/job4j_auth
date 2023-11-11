@@ -6,14 +6,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.MultiValueMapAdapter;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.auth.domain.Person;
 import ru.job4j.auth.dto.PersonDTO;
+import ru.job4j.auth.exception.Operation;
 import ru.job4j.auth.repository.PersonRepository;
 import org.springframework.http.HttpStatus;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +55,7 @@ public class PersonController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Person> create(@RequestBody Person person) {
+    public ResponseEntity<Person> create(@RequestBody @Validated(Operation.OnCreate.class)  Person person) {
         validate(person);
         person.setPassword(encoder.encode(person.getPassword()));
 
@@ -63,7 +66,7 @@ public class PersonController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<Person> updateLogin(@RequestBody PersonDTO personDto) {
+    public ResponseEntity<Person> updateLogin(@RequestBody @Valid PersonDTO personDto) {
 
         if (personDto.getLogin() == null) {
 
@@ -83,7 +86,7 @@ public class PersonController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Person> update(@RequestBody  Person person) {
+    public ResponseEntity<Person> update(@RequestBody @Validated(Operation.OnUpdate.class) Person person) {
         validate(person);
         person.setPassword(encoder.encode(person.getPassword()));
 
